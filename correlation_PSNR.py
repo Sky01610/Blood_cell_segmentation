@@ -1,36 +1,36 @@
 import cv2
 import numpy as np
 
+def correlation(path_1, path_2):
+    # Load the images
+    img1 = cv2.imread(path_1, cv2.IMREAD_GRAYSCALE)
+    img2 = cv2.imread(path_2, cv2.IMREAD_GRAYSCALE)
 
-def calculate_psnr(img1_path, img2_path):
-    # 读取两张图片
-    img1 = cv2.imread(img1_path)
-    img2 = cv2.imread(img2_path)
+    # Check if images are loaded
+    if img1 is None or img2 is None:
+        print(f"Error: Could not load {path_1} or {path_2}")
+        return
 
-    # 确保两张图片尺寸相同
+    # Ensure images have the same size
     if img1.shape != img2.shape:
-        raise ValueError("The two images must have the same dimensions.")
+        print(f"Error: Image dimensions do not match for {path_1} and {path_2}")
+        return
 
-    # 计算MSE (Mean Squared Error)
+    # Compute the Mean Squared Error (MSE)
     mse = np.mean((img1 - img2) ** 2)
 
+    # Compute PSNR
     if mse == 0:
-        # 当两张图片完全相同时，PSNR 值为无穷大
-        return float('inf')
-
-    # 计算 PSNR 值
-    max_pixel_value = 255.0  # 对于8位图像，最大像素值为255
-    psnr = 20 * np.log10(max_pixel_value / np.sqrt(mse))
-
-    return psnr
-
-#初始化总值
-all=0
-# 测试代码
-for i in range (19):
-    img1_path = f"result/{i}.png"
-    img2_path = f"dataset_restore/noisy/{i}.png"
-    psnr_value = calculate_psnr(img1_path, img2_path)
-    print(f"PSNR between the {i} images: {psnr_value} dB")
-
-print(f"PSNR in average ={all/20}")
+        print(f"PSNR for {path_1} and {path_2}: Infinite (Images are identical)")
+    else:
+        PIXEL_MAX = 255.0
+        psnr = 20 * np.log10(PIXEL_MAX / np.sqrt(mse))
+        print(f"PSNR for {path_1} and {path_2}: {psnr:.2f} dB")
+for i in range (1,19):
+    # Run the function for the uploaded images
+    image = cv2.imread(f"val_images/clean/{i}.png")
+    # Resize to 256x256
+    resized_image = cv2.resize(image, (256, 256))
+    # Save the resized image
+    cv2.imwrite(f"resize/{i}.png", resized_image)
+    correlation(f"resize/{i}.png", f"result/{i}.png")
